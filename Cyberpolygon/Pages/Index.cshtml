@@ -1,0 +1,33 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Киберполигон";
+}
+<h1>@ViewData["Title"]</h1>
+
+<style>
+    input[type="button"] {
+        width: 100%;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        color: #fff;
+        background-color: #00aeef;
+        border-color: #00aeef;
+        line-height: 1.5;
+        border-radius: 0.2rem;
+        cursor: pointer;
+    }
+</style>
+
+<div>
+    <form method="post">
+        <input type="button" value="Конфигурации" onclick="location.href='@Url.Page("/Configuration/Index")'" />
+        <br>
+        <input type="button" value="Инфраструктура" onclick="location.href='@Url.Page("/Infrastructure")'" />
+        <br>
+        <input type="button" value="Генерация bat-файла" onclick="location.href='@Url.Page("/Bat")'" />
+        <br>
+        <input type="button" value="Параметры" onclick="location.href='@Url.Page("/Settings")'" />
+    </form>
+</div>

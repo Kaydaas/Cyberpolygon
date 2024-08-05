@@ -1,0 +1,1121 @@
+﻿@page
+@model InfrastructureModel
+@{
+    ViewData["Title"] = "Инфраструктура";
+}
+<h1>@ViewData["Title"]</h1>
+
+<body>
+    <div>
+        <button id="download-button">Скачать конфигурации</button>
+    </div>
+    <div id="add-record">
+        <select id="record-type">
+            <option value="Маршрутизатор">Маршрутизатор</option>
+            <option value="Коммутатор">Коммутатор</option>
+        </select>
+        <br>
+        <button id="add-record-button">Добавить</button>
+        <br>
+        <input type="button" class="reset" value="Очистить все" onclick="resetForm()">
+    </div>
+
+    <style>
+        input {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        select {
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+
+    <ul id="routerswitch-list"></ul>
+
+    <script src="~/lib/jszip/jszip.min.js"></script>
+    <script>
+
+        const downloadButton = document.getElementById('download-button');
+        downloadButton.addEventListener('click', downloadConfigurations);
+
+        const recordList = document.getElementById('routerswitch-list');
+        const addRecord = document.getElementById('add-record');
+        const addRecordButton = document.getElementById('add-record-button');
+
+        loadTreeFromCookie();
+
+        // Функция для создания новой записи
+        function createRouterSwitch(type) {
+
+            const li = document.createElement('div');
+            li.classList.add('record');
+
+            const typename = document.createElement('h2');
+            typename.textContent = type;
+
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = 'Удалить';
+            deleteButton.classList.add('delete');
+
+            deleteButton.addEventListener('click', () => {
+                li.parentNode.removeChild(li);
+
+                saveTreeToCookie();
+            });
+
+            li.appendChild(typename);
+            li.appendChild(deleteButton);
+
+            // Создание моста
+            const networkAdapterList = document.createElement('ul');
+            networkAdapterList.classList.add('networkadapter-list');
+
+            const model = document.createElement('input');
+            model.type = 'text';
+            model.placeholder = 'VLAN';
+
+            const bridge = document.createElement('select');
+            bridge.id = 'networkadapter-type';
+
+            const vmbrZero = document.createElement('option');
+            vmbrZero.value = 'vmbr0';
+            vmbrZero.textContent = 'vmbr0';
+
+            const vmbrOne = document.createElement('option');
+            vmbrOne.value = 'vmbr1';
+            vmbrOne.textContent = 'vmbr1';
+
+            const vmbrTwo = document.createElement('option');
+            vmbrTwo.value = 'vmbr2';
+            vmbrTwo.textContent = 'vmbr2';
+
+            const vmbrThree = document.createElement('option');
+            vmbrThree.value = 'vmbr3';
+            vmbrThree.textContent = 'vmbr3';
+
+            bridge.appendChild(vmbrZero);
+            bridge.appendChild(vmbrOne);
+            bridge.appendChild(vmbrTwo);
+            bridge.appendChild(vmbrThree);
+
+            const addNetworkAdapterButton = document.createElement('button');
+            addNetworkAdapterButton.textContent = 'Добавить мост';
+            addNetworkAdapterButton.id = 'add-networkadapter-button';
+
+            addNetworkAdapterButton.addEventListener('click', () => {
+                if (model.value.trim() !== '' && bridge.value === 'vmbr3' || bridge.value != 'vmbr3') {
+                    console.log("kek");
+                    let networkadapterli;
+                    if (bridge.value != 'vmbr3') {
+                        networkadapterli = createNetworkAdapter(null, bridge.value);
+                    } else {
+                        networkadapterli = createNetworkAdapter(model.value.trim(), bridge.value);
+                    }
+                    networkAdapterList.appendChild(networkadapterli);
+                    model.value = '';
+
+                    saveTreeToCookie();
+                }
+            });
+
+            const networkAdapterContainer = document.createElement('div');
+            networkAdapterContainer.classList.add('networkadapter-container');
+            networkAdapterContainer.appendChild(model);
+            networkAdapterContainer.appendChild(bridge);
+            networkAdapterContainer.appendChild(addNetworkAdapterButton);
+            networkAdapterContainer.appendChild(networkAdapterList);
+
+            li.appendChild(networkAdapterContainer);
+
+            // Создание маршрутизатора/коммутатора
+            const subrecordList = document.createElement('ul');
+            subrecordList.classList.add('subrouterswitch-list');
+
+            const subType = document.createElement('select');
+            subType.id = 'subrecord-type';
+
+            const Router = document.createElement('option');
+            Router.value = 'Маршрутизатор';
+            Router.textContent = 'Маршрутизатор';
+
+            const Switch = document.createElement('option');
+            Switch.value = 'Коммутатор';
+            Switch.textContent = 'Коммутатор';
+
+            subType.appendChild(Router);
+            subType.appendChild(Switch);
+
+            const addSubrecordButton = document.createElement('button');
+            addSubrecordButton.textContent = 'Добавить маршрутизатор/коммутатор';
+            addSubrecordButton.id = 'add-subrouterswitch-button';
+
+            addSubrecordButton.addEventListener('click', () => {
+                const subli = createSubRouterSwitch(subType.value);
+                subrecordList.appendChild(subli);
+
+                saveTreeToCookie();
+            });
+
+            const subrecordContainer = document.createElement('div');
+            subrecordContainer.classList.add('subrouterswitch-container');
+            subrecordContainer.appendChild(subType);
+            subrecordContainer.appendChild(addSubrecordButton);
+            subrecordContainer.appendChild(subrecordList);
+
+            li.appendChild(subrecordContainer);
+
+            // Создание виртуальной машины
+            const subrecordVMList = document.createElement('ul');
+            subrecordVMList.classList.add('subvm-list');
+
+            const configurationList = document.createElement('select');
+            configurationList.id = 'configuration-list';
+            fetch('/Configuration?handler=Configurations')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(config => {
+                        const option = document.createElement('option');
+                        option.value = config.id;
+                        option.text = config.vmTitle;
+                        configurationList.appendChild(option);
+                    });
+                })
+                .catch(error => console.error(error));
+
+            const addSubrecordVMButton = document.createElement('button');
+            addSubrecordVMButton.textContent = 'Добавить виртуальную машину';
+            addSubrecordVMButton.id = 'add-subvm-button';
+
+            addSubrecordVMButton.addEventListener('click', () => {
+                const subli = createSubVM(configurationList.value, configurationList[configurationList.selectedIndex].text);
+                subrecordVMList.appendChild(subli);
+
+                saveTreeToCookie();
+            });
+
+            const VMContainer = document.createElement('div');
+            VMContainer.classList.add('subvm-container');
+            VMContainer.appendChild(configurationList);
+            VMContainer.appendChild(addSubrecordVMButton);
+            VMContainer.appendChild(subrecordVMList);
+
+            li.appendChild(VMContainer);
+
+            return li;
+        }
+
+        function createNetworkAdapter(modelName, bridgeName) {
+            const li = document.createElement('li');
+            li.classList.add('networkadapter-record');
+
+            const model = document.createElement('h3');
+            model.textContent = modelName;
+
+            const bridge = document.createElement('p');
+            bridge.textContent = bridgeName;
+
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = 'Удалить';
+            deleteButton.classList.add('delete');
+
+            li.appendChild(model);
+            li.appendChild(bridge);
+            li.appendChild(deleteButton);
+
+            deleteButton.addEventListener('click', () => {
+                li.parentNode.removeChild(li);
+
+                saveTreeToCookie();
+            });
+
+            return li;
+        }
+
+        function createSubRouterSwitch(type) {
+
+            const li = document.createElement('div');
+            li.classList.add('subrouterswitch-record');
+
+            const typename = document.createElement('h2');
+            typename.textContent = type;
+
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = 'Удалить';
+            deleteButton.classList.add('delete');
+
+            deleteButton.addEventListener('click', () => {
+                li.parentNode.removeChild(li);
+
+                saveTreeToCookie();
+            });
+
+            li.appendChild(typename);
+            li.appendChild(deleteButton);
+
+            // Создание моста
+            const networkAdapterList = document.createElement('ul');
+            networkAdapterList.classList.add('subnetworkadapter-list');
+
+            const model = document.createElement('input');
+            model.type = 'text';
+            model.placeholder = 'VLAN';
+
+            const bridge = document.createElement('select');
+            bridge.id = 'subnetworkadapter-type';
+
+            const vmbrZero = document.createElement('option');
+            vmbrZero.value = 'vmbr0';
+            vmbrZero.textContent = 'vmbr0';
+
+            const vmbrOne = document.createElement('option');
+            vmbrOne.value = 'vmbr1';
+            vmbrOne.textContent = 'vmbr1';
+
+            const vmbrTwo = document.createElement('option');
+            vmbrTwo.value = 'vmbr2';
+            vmbrTwo.textContent = 'vmbr2';
+
+            const vmbrThree = document.createElement('option');
+            vmbrThree.value = 'vmbr3';
+            vmbrThree.textContent = 'vmbr3';
+
+            bridge.appendChild(vmbrZero);
+            bridge.appendChild(vmbrOne);
+            bridge.appendChild(vmbrTwo);
+            bridge.appendChild(vmbrThree);
+
+            const addNetworkAdapterButton = document.createElement('button');
+            addNetworkAdapterButton.textContent = 'Добавить мост';
+            addNetworkAdapterButton.id = 'add-subnetworkadapter-button';
+
+            addNetworkAdapterButton.addEventListener('click', () => {
+                if (model.value.trim() !== '' && bridge.value === 'vmbr3' || bridge.value != 'vmbr3') {
+                    let networkadapterli;
+                    if (bridge.value != 'vmbr3') {
+                        networkadapterli = createSubNetworkAdapter(null, bridge.value);
+                    } else {
+                        networkadapterli = createSubNetworkAdapter(model.value.trim(), bridge.value);
+                    }
+                    networkAdapterList.appendChild(networkadapterli);
+                    model.value = '';
+
+                    saveTreeToCookie();
+                }
+            });
+
+            const networkAdapterContainer = document.createElement('div');
+            networkAdapterContainer.classList.add('subnetworkadapter-container');
+            networkAdapterContainer.appendChild(model);
+            networkAdapterContainer.appendChild(bridge);
+            networkAdapterContainer.appendChild(addNetworkAdapterButton);
+            networkAdapterContainer.appendChild(networkAdapterList);
+
+            li.appendChild(networkAdapterContainer);
+
+            // Создание виртуальной машины
+            const subrecordVMList = document.createElement('ul');
+            subrecordVMList.classList.add('vm-list');
+
+            const configurationList = document.createElement('select');
+            configurationList.id = 'configuration-list';
+            fetch('/Configuration?handler=Configurations')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(config => {
+                        const option = document.createElement('option');
+                        option.value = config.id;
+                        option.text = config.vmTitle;
+                        configurationList.appendChild(option);
+                    });
+                })
+                .catch(error => console.error(error));
+
+            const addSubrecordVMButton = document.createElement('button');
+            addSubrecordVMButton.textContent = 'Добавить виртуальную машину';
+            addSubrecordVMButton.id = 'add-vm-button';
+
+            addSubrecordVMButton.addEventListener('click', () => {
+                const subli = createVM(configurationList.value, configurationList[configurationList.selectedIndex].text);
+                subrecordVMList.appendChild(subli);
+
+                saveTreeToCookie();
+            });
+
+            const VMContainer = document.createElement('div');
+            VMContainer.classList.add('vm-container');
+            VMContainer.appendChild(configurationList);
+            VMContainer.appendChild(addSubrecordVMButton);
+            VMContainer.appendChild(subrecordVMList);
+
+            li.appendChild(VMContainer);
+
+            return li;
+        }
+
+        function createSubNetworkAdapter(modelName, bridgeName) {
+            const li = document.createElement('li');
+            li.classList.add('subnetworkadapter-record');
+
+            const model = document.createElement('h3');
+            model.textContent = modelName;
+
+            const bridge = document.createElement('p');
+            bridge.textContent = bridgeName;
+
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = 'Удалить';
+            deleteButton.classList.add('delete');
+
+            li.appendChild(model);
+            li.appendChild(bridge);
+            li.appendChild(deleteButton);
+
+            deleteButton.addEventListener('click', () => {
+                li.parentNode.removeChild(li);
+
+                saveTreeToCookie();
+            });
+
+            return li;
+        }
+
+        // Функция для создания новой виртуальной машины
+        function createVM(id, vmtitle) {
+
+            const li = document.createElement('li');
+            li.classList.add('vm-record');
+
+            const type = document.createElement('h4');
+            type.textContent = 'Виртуальная машина';
+
+            const VMname = document.createElement('p');
+            VMname.textContent = vmtitle;
+
+            const VMid = document.createElement('p');
+            VMid.textContent = id;
+
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = 'Удалить';
+            deleteButton.classList.add('delete');
+
+            deleteButton.addEventListener('click', () => {
+                li.parentNode.removeChild(li);
+
+                saveTreeToCookie();
+            });
+
+            li.appendChild(type);
+            li.appendChild(VMname);
+            li.appendChild(VMid);
+            li.appendChild(deleteButton);
+
+            return li;
+        }
+
+        // Функция для создания новой виртуальной машины
+        function createSubVM(id, vmtitle) {
+
+            const li = document.createElement('li');
+            li.classList.add('subvm-record');
+
+            const type = document.createElement('h4');
+            type.textContent = 'Виртуальная машина';
+
+            const VMname = document.createElement('p');
+            VMname.textContent = vmtitle;
+
+            const VMid = document.createElement('p');
+            VMid.textContent = id;
+
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = 'Удалить';
+            deleteButton.classList.add('delete');
+
+            deleteButton.addEventListener('click', () => {
+                li.parentNode.removeChild(li);
+
+                saveTreeToCookie();
+            });
+
+            li.appendChild(type);
+            li.appendChild(VMname);
+            li.appendChild(VMid);
+            li.appendChild(deleteButton);
+
+            // Создание виртуальной машины
+            const subrecordVMList = document.createElement('ul');
+            subrecordVMList.classList.add('subsubvm-list');
+
+            const configurationList = document.createElement('select');
+            configurationList.id = 'configuration-list';
+            fetch('/Configuration?handler=Configurations')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(config => {
+                        const option = document.createElement('option');
+                        option.value = config.id;
+                        option.text = config.vmTitle;
+                        configurationList.appendChild(option);
+                    });
+                })
+                .catch(error => console.error(error));
+
+            const addSubrecordVMButton = document.createElement('button');
+            addSubrecordVMButton.textContent = 'Добавить виртуальную машину';
+            addSubrecordVMButton.id = 'add-subsubvm-button';
+
+            addSubrecordVMButton.addEventListener('click', () => {
+                const subli = createSubSubVM(configurationList.value, configurationList[configurationList.selectedIndex].text);
+                subrecordVMList.appendChild(subli);
+
+                saveTreeToCookie();
+            });
+
+            const VMContainer = document.createElement('div');
+            VMContainer.classList.add('subsubvm-container');
+            VMContainer.appendChild(configurationList);
+            VMContainer.appendChild(addSubrecordVMButton);
+            VMContainer.appendChild(subrecordVMList);
+
+            li.appendChild(VMContainer);
+
+            return li;
+        }
+
+        // Функция для создания новой виртуальной машины
+        function createSubSubVM(id, vmtitle) {
+
+            const li = document.createElement('li');
+            li.classList.add('subsubvm-record');
+
+            const type = document.createElement('h4');
+            type.textContent = 'Виртуальная машина';
+
+            const VMname = document.createElement('p');
+            VMname.textContent = vmtitle;
+
+            const VMid = document.createElement('p');
+            VMid.textContent = id;
+
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = 'Удалить';
+            deleteButton.classList.add('delete');
+
+            deleteButton.addEventListener('click', () => {
+                li.parentNode.removeChild(li);
+
+                saveTreeToCookie();
+            });
+
+            li.appendChild(type);
+            li.appendChild(VMname);
+            li.appendChild(VMid);
+            li.appendChild(deleteButton);
+
+            return li;
+        }
+
+        // Обработчик клика на кнопку "Добавить запись"
+        addRecordButton.addEventListener('click', () => {
+            const li = createRouterSwitch(document.getElementById('record-type').value);
+            recordList.appendChild(li);
+
+            saveTreeToCookie();
+        });
+
+        function resetForm() {
+            const tree = document.getElementById('routerswitch-list');
+            while (tree.firstChild) {
+                tree.removeChild(tree.firstChild);
+
+                saveTreeToCookie();
+            }
+        }
+
+        function infrastructureToJSON() {
+            const tree = document.getElementById('routerswitch-list');
+            const records = [];
+
+            for (let i = 0; i < tree.children.length; i++) {
+                const record = {};
+                const li = tree.children[i];
+
+                record.type = li.querySelector('h2').textContent;
+
+                // Обрабатываем записи с сетевыми адаптерами
+                if (li.querySelector('.networkadapter-list')) {
+                    record.network_adapters = [];
+                    const networkadapterList = li.querySelector('.networkadapter-list');
+
+                    for (let j = 0; j < networkadapterList.children.length; j++) {
+                        const networkadapter = {};
+                        const subli = networkadapterList.children[j];
+
+                        networkadapter.model = subli.querySelector('h3').textContent;
+                        networkadapter.bridge = subli.querySelectorAll('p')[0].textContent;
+
+                        record.network_adapters.push(networkadapter);
+                    }
+                }
+
+                // Обрабатываем дочерние записи c маршрутизаторами/коммутаторами
+                if (li.querySelector('.subrouterswitch-list')) {
+                    record.subrecords = [];
+                    const subRecordList = li.querySelector('.subrouterswitch-list');
+
+                    for (let j = 0; j < subRecordList.children.length; j++) {
+                        const subrecord = {};
+                        const subli = subRecordList.children[j];
+
+                        subrecord.type = subli.querySelector('h2').textContent;
+
+                        // Обрабатываем записи с сетевыми адаптерами
+                        if (subli.querySelector('.subnetworkadapter-list')) {
+                            subrecord.network_adapters = [];
+                            const networkadapterList = subli.querySelector('.subnetworkadapter-list');
+
+                            for (let k = 0; k < networkadapterList.children.length; k++) {
+                                const networkadapter = {};
+                                const subsubli = networkadapterList.children[k];
+
+                                networkadapter.model = subsubli.querySelector('h3').textContent;
+                                networkadapter.bridge = subsubli.querySelectorAll('p')[0].textContent;
+
+                                subrecord.network_adapters.push(networkadapter);
+                            }
+                        }
+
+                        // Обрабатываем записи с виртуальными машинами
+                        if (subli.querySelector('.vm-list')) {
+                            subrecord.vm = [];
+                            const subSubRecordList = subli.querySelector('.vm-list');
+
+                            for (let k = 0; k < subSubRecordList.children.length; k++) {
+                                const subsubrecord = {};
+                                const subsubli = subSubRecordList.children[k];
+
+                                subsubrecord.type = subsubli.querySelector('h4').textContent;
+                                subsubrecord.vmname = subsubli.querySelectorAll('p')[0].textContent;
+                                subsubrecord.id = subsubli.querySelectorAll('p')[1].textContent;
+
+                                subrecord.vm.push(subsubrecord);
+                            }
+                        }
+
+                        record.subrecords.push(subrecord);
+                    }
+                }
+
+                // Обрабатываем дочерние записи c виртуальными машинами
+                if (li.querySelector('.subvm-list')) {
+                    record.vm = [];
+                    const subRecordList = li.querySelector('.subvm-list');
+
+                    for (let j = 0; j < subRecordList.children.length; j++) {
+                        const subrecord = {};
+                        const subli = subRecordList.children[j];
+
+                        subrecord.type = subli.querySelector('h4').textContent;
+                        subrecord.vmname = subli.querySelectorAll('p')[0].textContent;
+                        subrecord.id = subli.querySelectorAll('p')[1].textContent;
+
+                        // Обрабатываем записи с вложенными виртуальными машинами
+                        if (subli.querySelector('.subsubvm-list')) {
+                            subrecord.vm = [];
+                            const subSubRecordList = subli.querySelector('.subsubvm-list');
+
+                            for (let k = 0; k < subSubRecordList.children.length; k++) {
+                                const subsubrecord = {};
+                                const subsubli = subSubRecordList.children[k];
+
+                                subsubrecord.type = subsubli.querySelector('h4').textContent;
+                                subsubrecord.vmname = subsubli.querySelectorAll('p')[0].textContent;
+                                subsubrecord.id = subsubli.querySelectorAll('p')[1].textContent;
+
+                                subrecord.vm.push(subsubrecord);
+                            }
+                        }
+
+                        record.vm.push(subrecord);
+                    }
+                }
+                records.push(record);
+            }
+
+            return records;
+        }
+
+        async function createConfigurations() {
+            records = infrastructureToJSON();
+            let configurations = []
+            let count = 1;
+
+            async function fetchConfiguration(id, network_adapterslist) {
+                try {
+                    const cookies = document.cookie.split(';');
+                    let proxmoxUrlValue = null;
+
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.startsWith('proxmox_url=')) {
+                            proxmoxUrlValue = cookie.substring('proxmox_url='.length, cookie.length);
+                            break;
+                        }
+                    }
+
+                    const response = await fetch(`/Configuration/Details?handler=Json&id=${id}`);
+                    const data = await response.json();
+
+                    if (!['l24', 'l26', 'solaris', 'other'].includes(data.os)) {
+                        // Для WINDOWS
+
+                        const config = {
+                            variables: {
+                                autounattend: data.autounattendPath,
+                                vmname: 'VM' + count,
+                                "vm-cpu-num": `${data.coresNumber}`,
+                                "vm-mem-size": `${data.ramNumber}`,
+                                users: data.adminUsername,
+                                pass: data.adminPassword,
+                                "vm-disk-size": `${data.diskSizeNumber}G`,
+                                i_file: `local:iso/${data.isoFilename}`,
+                                i_file2: "local:iso/virtio-win-0.1.229.iso"
+                            },
+                            builders: [
+                                {
+                                    type: "proxmox",
+                                    proxmox_url: proxmoxUrlValue,
+                                    insecure_skip_tls_verify: true,
+                                    username: "{{user `users`}}",
+                                    password: "{{user `pass`}}",
+                                    vm_name: "{{user `vmname`}}",
+                                    boot_wait: "2m",
+                                    boot_command: [
+                                        "<tab><tab><tab><wait><enter><wait10s><enter><wait10s><down><wait><tab><enter><wait10s><spacebar><wait><tab><wait><enter><wait5s><tab><wait><enter><wait><tab><wait><tab><wait><enter><wait><down><down><down><down><down><down><down><down><right><down><down><down><down><down><down><down><right><down><enter><wait20s><tab><enter>"
+                                    ],
+                                    communicator: "none",
+                                    node: "pve",
+                                    network_adapters: network_adapterslist,
+                                    disks: [
+                                        {
+                                            type: "virtio",
+                                            disk_size: "{{user `vm-disk-size`}}",
+                                            storage_pool: "local-lvm",
+                                            storage_pool_type: "lvm-thin",
+                                            format: "raw"
+                                        }
+                                    ],
+                                    iso_file: "{{user `i_file`}}",
+                                    additional_iso_files: [
+                                        {
+                                            device: "ide0",
+                                            iso_file: "{{user `i_file2`}}",
+                                            unmount: false
+                                        }
+                                    ],
+                                    os: data.os,
+                                    cores: "{{user `vm-cpu-num`}}",
+                                    memory: "{{user `vm-mem-size`}}",
+                                    cpu_type: "kvm64",
+                                    disable_kvm: "false",
+                                    pool: "",
+                                    scsi_controller: "virtio-scsi-pci",
+                                    unmount_iso: "true"
+                                }
+                            ]
+                        };
+
+                        flagone = 0;
+                        flagtwo = 0;
+                        for (let i = 0; i < network_adapterslist.length; i++) {
+                            if (network_adapterslist[i].bridge === 'vmbr3') {
+                                flagone = 1;
+                            } else if (network_adapterslist[i].bridge === 'vmbr0') {
+                                flagtwo = 1;
+                            }
+                        }
+
+                        let newconfig;
+                        if (flagtwo === 0 && flagone === 1) {
+                            newconfig = {
+                                ...config,
+                                provisioners: [
+                                    {
+                                        type: "powershell",
+                                        inline: [
+                                            `New-NetIPAddress -InterfaceAlias Ethernet -IPAddress 192.168.1.${data.id + 1} -PrefixLength 24 -DefaultGateway 192.168.1.1 | Out-Null`,
+                                            "Set-DnsClientServerAddress -InterfaceAlias Ethernet -ServerAddresses ('8.8.8.8', '8.8.4.4') | Out-Null"
+                                        ]
+                                    }
+                                ]
+                            };
+                        } else {
+                            newconfig = {
+                                ...config,
+                                provisioners: [
+                                    {
+                                        type: "powershell",
+                                        inline: [
+                                            "Add-VMNetworkAdapter -VMName MyVM -Name VLAN1 -SwitchName Production -VlanId 1 | Out-Null",
+                                            "Add-VMNetworkAdapter -VMName MyVM -Name VLAN2 -SwitchName Production -VlanId 2 | Out-Null"
+                                        ]
+                                    }
+                                ]
+                            };
+                        }
+
+                        const scripts = {
+                            prox: "3prox-test.bat",
+                            zip: "7zip.bat",
+                            ziptest: "7zip-test.bat",
+                            zipmsi: "7zipmsi-test.bat",
+                            cobian: "Cobian-Backup-test.bat",
+                            folder: "folder.bat",
+                            ftp: "FTP.bat",
+                            port80: "Open_Port-80.bat",
+                            port445: "Open_Port-445.bat",
+                            port3389: "Open_Port-3389.bat",
+                            ports804438080: "Open_Ports-80-443-8080.bat",
+                            ports3389445: "Open_Ports-3389-445.bat",
+                            ports3389445443: "Open_Ports-3389-445-443.bat",
+                            pass: "pass.bat",
+                            postgresql: "PostgreSQL.bat",
+                            powershell: "Powershell.bat",
+                            veeam: "veean-agent.bat",
+                            hotfix7: "hotfix7-KB3102810.bat",
+                            hotfix812: "hotfix812-KB2842230.bat"
+                        };
+
+                        for (const key in scripts) {
+                            if (data[key]) {
+                                const command = `Copy-Item D:\\scripts\\${scripts[key]} C:\\temp\\${scripts[key]}; Start-Process C:\\temp\\${scripts[key]}`;
+                                newconfig.provisioners[0].inline.push(command);
+                            }
+                        }
+
+                        configurations.push(newconfig);
+                        count++;
+                    } else {
+                        // Для LINUX, SOLARIS, OTHER
+
+                        const config = {
+                            variables: {
+                                autounattend: data.autounattendPath,
+                                vmname: 'VM' + count,
+                                "vm-cpu-num": `${data.coresNumber}`,
+                                "vm-mem-size": `${data.ramNumber}`,
+                                users: data.adminUsername,
+                                pass: data.adminPassword,
+                                "vm-disk-size": `${data.diskSizeNumber}G`,
+                                i_file: `local:iso/${data.isoFilename}`,
+                                i_file2: "local:iso/virtio-win-0.1.229.iso"
+                            },
+                            builders: [
+                                {
+                                    type: "proxmox",
+                                    proxmox_url: proxmoxUrlValue,
+                                    insecure_skip_tls_verify: true,
+                                    username: "{{user `users`}}",
+                                    password: "{{user `pass`}}",
+                                    vm_name: "{{user `vmname`}}",
+                                    http_directory: data.autounattendPath,
+                                    boot_wait: "2m",
+                                    boot_command: [
+                                        "<tab> <tab> <tab> <wait>",
+                                        "wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/Autounattend-10.xml <enter><wait>",
+                                        "<wait30m>"
+                                    ],
+                                    communicator: "none",
+                                    node: "pve",
+                                    network_adapters: network_adapterslist,
+                                    disks: [
+                                        {
+                                            type: "virtio",
+                                            disk_size: "{{user `vm-disk-size`}}",
+                                            storage_pool: "local-lvm",
+                                            storage_pool_type: "lvm-thin",
+                                            format: "raw"
+                                        }
+                                    ],
+                                    iso_file: "{{user `i_file`}}",
+                                    additional_iso_files: [
+                                        {
+                                            device: "ide0",
+                                            iso_file: "{{user `i_file2`}}",
+                                            unmount: false
+                                        }
+                                    ],
+                                    os: data.os,
+                                    cores: "{{user `vm-cpu-num`}}",
+                                    memory: "{{user `vm-mem-size`}}",
+                                    cpu_type: "kvm64",
+                                    disable_kvm: "false",
+                                    pool: "",
+                                    scsi_controller: "virtio-scsi-pci",
+                                    unmount_iso: "true"
+                                }
+                            ]
+                        };
+
+                        flagone = 0;
+                        flagtwo = 0;
+                        for (let i = 0; i < network_adapterslist.length; i++) {
+                            if (network_adapterslist[i].bridge === 'vmbr3') {
+                                flagone = 1;
+                            } else if (network_adapterslist[i].bridge === 'vmbr0') {
+                                flagtwo = 1;
+                            }
+                        }
+
+                        let newconfig;
+                        if (flagtwo === 0 && flagone === 1) {
+                            newconfig = {
+                                ...config,
+                                provisioners: [
+                                    {
+                                        type: "powershell",
+                                        inline: [
+                                            `New-NetIPAddress -InterfaceAlias Ethernet -IPAddress 192.168.1.${data.id + 1} -PrefixLength 24 -DefaultGateway 192.168.1.1 | Out-Null`,
+                                            "Set-DnsClientServerAddress -InterfaceAlias Ethernet -ServerAddresses ('8.8.8.8', '8.8.4.4') | Out-Null"
+                                        ]
+                                    }
+                                ]
+                            };
+                        } else {
+                            newconfig = {
+                                ...config,
+                                provisioners: [
+                                    {
+                                        type: "powershell",
+                                        inline: [
+                                            "Add-VMNetworkAdapter -VMName MyVM -Name VLAN1 -SwitchName Production -VlanId 1 | Out-Null",
+                                            "Add-VMNetworkAdapter -VMName MyVM -Name VLAN2 -SwitchName Production -VlanId 2 | Out-Null"
+                                        ]
+                                    }
+                                ]
+                            };
+                        }
+
+                        const scripts = {
+                            prox: "3prox-test.bat",
+                            zip: "7zip.bat",
+                            ziptest: "7zip-test.bat",
+                            zipmsi: "7zipmsi-test.bat",
+                            cobian: "Cobian-Backup-test.bat",
+                            folder: "folder.bat",
+                            ftp: "FTP.bat",
+                            port80: "Open_Port-80.bat",
+                            port445: "Open_Port-445.bat",
+                            port3389: "Open_Port-3389.bat",
+                            ports804438080: "Open_Ports-80-443-8080.bat",
+                            ports3389445: "Open_Ports-3389-445.bat",
+                            ports3389445443: "Open_Ports-3389-445-443.bat",
+                            pass: "pass.bat",
+                            postgresql: "PostgreSQL.bat",
+                            powershell: "Powershell.bat",
+                            veeam: "veean-agent.bat",
+                            hotfix7: "hotfix7-KB3102810.bat",
+                            hotfix812: "hotfix812-KB2842230.bat"
+                        };
+
+                        for (const key in scripts) {
+                            if (data[key]) {
+                                const command = `Copy-Item D:\\scripts\\${scripts[key]} C:\\temp\\${scripts[key]}; Start-Process C:\\temp\\${scripts[key]}`;
+                                newconfig.provisioners[0].inline.push(command);
+                            }
+                        }
+
+                        configurations.push(newconfig);
+                        count++;
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            for (let i = 0; i < records.length; i++) {
+                let record = records[i];
+
+                for (let j = 0; j < record.subrecords.length; j++) {
+                    let subrecord = record.subrecords[j];
+                    let network_adapterslist = record.network_adapters.concat(subrecord.network_adapters);
+
+                    if (network_adapterslist.length === 0) {
+                        const obj = {
+                            model: "e1000",
+                            bridge: "vmbr0"
+                        }
+                        network_adapterslist.push(obj);
+                    } else {
+                        for (let k = 0; k < network_adapterslist.length; k++) {
+                            console.log(network_adapterslist[k]);
+                            if (network_adapterslist[k].bridge === 'vmbr3') {
+                                network_adapterslist[k].vlan_tag = `${network_adapterslist[k].model}`;
+                            }
+                            network_adapterslist[k].model = "e1000";
+                        }
+                    }
+
+                    for (let k = 0; k < subrecord.vm.length; k++) {
+                        let vm = subrecord.vm[k];
+                        await fetchConfiguration(vm.id, network_adapterslist);
+                    }
+                }
+
+                for (let j = 0; j < record.vm.length; j++) {
+                    let subvm = record.vm[j];
+                    const network_adapterslisttwo = record.network_adapters;
+
+                    if (network_adapterslisttwo.length === 0) {
+                        const obj = {
+                            model: "e1000",
+                            bridge: "vmbr0"
+                        }
+                        network_adapterslisttwo.push(obj);
+                    } else {
+                        for (let k = 0; k < network_adapterslisttwo.length; k++) {
+                            if (network_adapterslisttwo[k].bridge === 'vmbr3') {
+                                network_adapterslisttwo[k].vlan_tag = `${network_adapterslisttwo[k].model}`;
+                            }
+                            network_adapterslisttwo[k].model = "e1000";
+                        }
+                    }
+
+                    await fetchConfiguration(subvm.id, record.network_adapters);
+
+                    for (let k = 0; k < subvm.vm.length; k++) {
+                        let subsubvm = subvm.vm[k];
+                        await fetchConfiguration(subsubvm.id, record.network_adapters);
+                    }
+                }
+            }
+
+            return Promise.resolve(configurations);
+        }
+
+        async function downloadConfigurations() {
+            try {
+                const configurations = await createConfigurations();
+
+                const zip = new JSZip();
+
+                for (let i = 0; i < configurations.length; i++) {
+                    const config = configurations[i];
+                    const vmname = config.variables.vmname;
+                    const jsonStr = JSON.stringify(config, null, 2);
+
+                    // save json file with vmname as filename
+                    zip.file(`${vmname}.json`, jsonStr);
+                }
+
+                // generate bat file for all json files
+                const batContent = `for %%f in (*.json) do (packer.exe build "%%f")`;
+                zip.file(`run_packer.bat`, batContent);
+
+                // generate zip folder containing all files
+                const content = await zip.generateAsync({ type: "blob" });
+
+                // create a link to download the zip folder
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = 'configurations.zip';
+
+                // trigger click event on link to initiate download
+                link.click();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function saveTreeToCookie() {
+            records = infrastructureToJSON();
+
+            // Преобразуем объект в JSON-строку и сохраняем её в куки
+            const jsonStr = JSON.stringify(records, null, 2);
+            document.cookie = `tree=${encodeURIComponent(jsonStr)}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+        }
+
+        function loadTreeFromCookie() {
+            const cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)tree\s*\=\s*([^;]*).*$)|^.*$/, '$1');
+            if (cookieValue) {
+                const records = JSON.parse(decodeURIComponent(cookieValue));
+                const tree = document.getElementById('routerswitch-list');
+
+                for (let i = 0; i < records.length; i++) {
+                    const record = records[i];
+                    const li = createRouterSwitch(record.type);
+
+                    // Обрабатываем записи с сетевыми адаптерами
+                    if (record.network_adapters) {
+                        for (let j = 0; j < record.network_adapters.length; j++) {
+                            const netrworkAdapter = record.network_adapters[j];
+                            const subli = createNetworkAdapter(netrworkAdapter.model, netrworkAdapter.bridge);
+
+                            li.querySelector('.networkadapter-list').appendChild(subli);
+                        }
+                    }
+
+                    // Обрабатываем дочерние записи
+                    if (record.subrecords) {
+                        for (let j = 0; j < record.subrecords.length; j++) {
+                            const subrecord = record.subrecords[j];
+                            const subli = createSubRouterSwitch(subrecord.type);
+
+                            // Обрабатываем вложенные записи
+                            if (subrecord.network_adapters) {
+                                for (let k = 0; k < subrecord.network_adapters.length; k++) {
+                                    const subsubrecord = subrecord.network_adapters[k];
+                                    const subsubli = createSubNetworkAdapter(subsubrecord.model, subsubrecord.bridge);
+                                    subli.querySelector('.subnetworkadapter-list').appendChild(subsubli);
+                                }
+                            }
+
+                            // Обрабатываем вложенные записи
+                            if (subrecord.vm) {
+                                for (let k = 0; k < subrecord.vm.length; k++) {
+                                    const subsubrecord = subrecord.vm[k];
+                                    const subsubli = createVM(subsubrecord.id, subsubrecord.vmname);
+                                    subli.querySelector('.vm-list').appendChild(subsubli);
+                                }
+                            }
+
+                            li.querySelector('.subrouterswitch-list').appendChild(subli);
+                        }
+                    }
+
+                    // Обрабатываем записи с виртуальными машинами
+                    if (record.vm) {
+                        for (let j = 0; j < record.vm.length; j++) {
+                            const subvm = record.vm[j];
+                            const subli = createSubVM(subvm.id, subvm.vmname);
+
+                            // Обрабатываем вложенные записи
+                            if (subvm.vm) {
+                                for (let k = 0; k < subvm.vm.length; k++) {
+                                    const subsubvm = subvm.vm[k];
+                                    const subsubli = createSubSubVM(subsubvm.id, subsubvm.vmname);
+                                    subli.querySelector('.subsubvm-list').appendChild(subsubli);
+                                }
+                            }
+
+                            li.querySelector('.subvm-list').appendChild(subli);
+                        }
+                    }
+
+                    tree.appendChild(li);
+                }
+            }
+        }
+    </script>
+</body>

@@ -1,0 +1,186 @@
+﻿@page
+@model Cyberpolygon.Pages.Configuration.DeleteModel
+
+@{
+    ViewData["Title"] = "Удалить конфигурацию";
+}
+
+<h1>@ViewData["Title"]</h1>
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            Путь к файлу autounattend.xml
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.AutounattendPath)
+        </dd>
+        <dt class="col-sm-2">
+            Название виртуальной машины
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.VmTitle)
+        </dd>
+        <dt class="col-sm-2">
+            Имя пользователя
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.AdminUsername)
+        </dd>
+        <dt class="col-sm-2">
+            Пароль
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.AdminPassword)
+        </dd>
+        <dt class="col-sm-2">
+            Количество ядер
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.CoresNumber)
+        </dd>
+        <dt class="col-sm-2">
+            ОЗУ (МБ)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.RamNumber)
+        </dd>
+        <dt class="col-sm-2">
+            Размер жеского диска (ГБ)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.DiskSizeNumber)
+        </dd>
+        <dt class="col-sm-2">
+            Название ISO файла
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.IsoFilename)
+        </dd>
+        <dt class="col-sm-2">
+            Операционная система
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.OS)
+        </dd>
+        <dt class="col-sm-2">
+            3prox-test.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.prox)
+        </dd>
+        <dt class="col-sm-2">
+            7zip.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.zip)
+        </dd>
+        <dt class="col-sm-2">
+            7zip-test.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.ziptest)
+        </dd>
+        <dt class="col-sm-2">
+            7zipmsi-test.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.zipmsi)
+        </dd>
+        <dt class="col-sm-2">
+            Cobian-Backup-test.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.cobian)
+        </dd>
+        <dt class="col-sm-2">
+            folder.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.folder)
+        </dd>
+        <dt class="col-sm-2">
+            FTP.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.ftp)
+        </dd>
+        <dt class="col-sm-2">
+            Open_Port-80.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.port80)
+        </dd>
+        <dt class="col-sm-2">
+            Open_Port-445.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.port445)
+        </dd>
+        <dt class="col-sm-2">
+            Open_Port-3389.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.port3389)
+        </dd>
+        <dt class="col-sm-2">
+            Open_Ports-80-443-8080.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.ports804438080)
+        </dd>
+        <dt class="col-sm-2">
+            Open_Ports-3389-445.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.ports3389445)
+        </dd>
+        <dt class="col-sm-2">
+            Open_Ports-3389-445-443.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.ports3389445443)
+        </dd>
+        <dt class="col-sm-2">
+            pass.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.pass)
+        </dd>
+        <dt class="col-sm-2">
+            PostgreSQL.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.postgresql)
+        </dd>
+        <dt class="col-sm-2">
+            Powershell.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.powershell)
+        </dd>
+        <dt class="col-sm-2">
+            veean-agent.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.veeam)
+        </dd>
+        <dt class="col-sm-2">
+            hotfix7-KB3102810.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.hotfix7)
+        </dd>
+        <dt class="col-sm-2">
+            hotfix812-KB2842230.bat
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Configuration.hotfix812)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="Configuration.Id" />
+        <input type="submit" value="Удалить" class="btn btn-danger" /> |
+        <a asp-page="./Index">Назад</a>
+    </form>
+</div>

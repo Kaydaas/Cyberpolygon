@@ -1,0 +1,99 @@
+﻿@page
+@model Cyberpolygon.Pages.BatModel
+@{
+    ViewData["Title"] = "Генерация bat-файла";
+}
+<h1>@ViewData["Title"]</h1>
+
+<style>
+    input {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .error {
+        color: red;
+    }
+
+    button {
+        width: 100%;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        color: #fff;
+        background-color: #00aeef;
+        border-color: #00aeef;
+        line-height: 1.5;
+        border-radius: 0.2rem;
+        cursor: pointer;
+    }
+</style>
+
+<div>
+    <form id="batForm" method="post">
+        <label for="programLink">Ссылка на программу</label>
+        <input type="text" id="programLink" name="ProgramLink" data-error-message="Введите ссылку на программу">
+        <span id="programLinkError" class="error"></span>
+        <p>https://www.7-zip.org/a/7z1900-x64.exe</p>
+        <p>https://www.7-zip.org/a/7z1900-x64.msi</p>
+        <button type="submit">Сгенерировать</button>
+    </form>
+
+    <script>
+        const form = document.querySelector('#batForm');
+        const errorMessage = document.querySelector('#errorMessage');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const programLinkInput = document.querySelector('#programLink');
+            const programLinkError = document.querySelector('#programLinkError');
+            const programLink = programLinkInput.value;
+            const fileName = programLink.split('/').pop().split('.')[0];
+            const fileExt = programLink.split('.').pop();
+            let script;
+
+            if (fileExt === 'exe') {
+                script = `@@echo off\n` +
+                    `powershell.exe -command "& {$url = '${programLink}'; $path = 'C:\\111\\${fileName}.exe'; Invoke-WebRequest $url -OutFile $path; Start-Process $path}"\n` +
+                    `\n` +
+                    `setlocal\n` +
+                    `set FILE_PATH="C:\\111\\${fileName}.exe"\n` +
+                    `\n` +
+                    `echo Installing ${fileName}...\n` +
+                    `\n` +
+                    `powershell.exe -Command "& {Start-Process %FILE_PATH% -ArgumentList '/S' -Wait}"\n` +
+                    `\n` +
+                    `\n` +
+                    `endlocal\n` +
+                    `pause`;
+            } else if (fileExt === 'msi') {
+                script = `@@echo off\n` +
+                    `powershell.exe -command "& {$url = '${programLink}'; $path = 'C:\\111\\${fileName}.msi'; Invoke-WebRequest $url -OutFile $path; Start-Process $path}"\n` +
+                    `\n` +
+                    `set MSI_PATH="C:\\111\\${fileName}.msi"\n` +
+                    `\n` +
+                    `echo Installing ${fileName}...\n` +
+                    `msiexec /i %MSI_PATH% /quiet /norestart\n` +
+                    `\n` +
+                    `echo Installation completed.\n` +
+                    `\n` +
+                    `pause`;
+            } else {
+                return;
+            }
+
+            const blob = new Blob([script], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `${fileName}.bat`;
+
+            link.click();
+        });
+    </script>
+</div>

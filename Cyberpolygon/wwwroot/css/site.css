@@ -1,0 +1,145 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+img {
+    width: 100px;
+    height: auto
+}
+
+.container {
+    font-family: Bahnschrift;
+}
+
+.cfg input[type=text], select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.cfg input[type=submit] {
+    width: 100%;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    color: #fff;
+    background-color: #00aeef;
+    border-color: #00aeef;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+    cursor: pointer;
+}
+
+.indent {
+    margin-left: 20px;
+}
+
+.record {
+    margin-top: 10px;
+    border: 5px solid #00aeef;
+    padding: 10px;
+}
+
+ul {
+    padding-left: 0;
+}
+
+.delete {
+    color: red;
+    cursor: pointer;
+}
+
+.add-subrecord {
+    margin-top: 5px;
+}
+
+button {
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    color: #fff;
+    background-color: #00aeef;
+    border-color: #00aeef;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+    cursor: pointer;
+}
+
+.label {
+    font-size: large;
+}
+
+.reset {
+    color: red;
+    cursor: pointer;
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+.networkadapter-record {
+    list-style: none;
+    margin-top: 10px;
+    margin-left: 100px;
+    border-left: 5px solid #00aeef;
+    padding: 10px;
+}
+
+.subrouterswitch-record {
+    list-style: none;
+    margin-top: 10px;
+    margin-left: 100px;
+    border-left: 5px solid #00aeef;
+    padding: 10px;
+}
+
+.subnetworkadapter-record {
+    list-style: none;
+    margin-top: 10px;
+    margin-left: 100px;
+    border-left: 5px solid #00aeef;
+    padding: 10px;
+}
+
+.vm-record {
+    list-style: none;
+    margin-top: 10px;
+    margin-left: 100px;
+    border-left: 5px solid #00aeef;
+    padding: 10px;
+}
+
+.subvm-record {
+    list-style: none;
+    margin-top: 10px;
+    margin-left: 100px;
+    border-left: 5px solid #00aeef;
+    padding: 10px;
+}
+
+.subsubvm-record {
+    list-style: none;
+    margin-top: 10px;
+    margin-left: 100px;
+    border-left: 5px solid #00aeef;
+    padding: 10px;
+}

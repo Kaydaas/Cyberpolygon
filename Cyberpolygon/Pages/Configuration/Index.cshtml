@@ -1,0 +1,498 @@
+﻿@page
+@model Cyberpolygon.Pages.Configuration.IndexModel
+
+@{
+    ViewData["Title"] = "Конфигурации";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-page="Create">Добавить конфигурацию</a>
+</p>
+
+<div style="overflow-x: auto;">
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th style="width: 200px; white-space: nowrap;">
+                    <label>Путь к файлу autounattend.xml</label>
+                </th>
+                <th style="width: 150px; white-space: nowrap;">
+                    <label>Название виртуальной машины</label>
+                </th>
+                <th style="width: 120px; white-space: nowrap;">
+                    <label>Имя пользователя</label>
+                </th>
+                <th style="width: 100px; white-space: nowrap;">
+                    <label>Пароль</label>
+                </th>
+                <th style="width: 70px; white-space: nowrap;">
+                    <label>Количество ядер</label>
+                </th>
+                <th style="width: 60px; white-space: nowrap;">
+                    <label>ОЗУ (МБ)</label>
+                </th>
+                <th style="width: 110px; white-space: nowrap;">
+                    <label>Размер жеского диска (ГБ)</label>
+                </th>
+                <th style="width: 150px; white-space: nowrap;">
+                    <label>Название ISO файла</label>
+                </th>
+                <th style="width: 120px; white-space: nowrap;">
+                    <label>Операционная система</label>
+                </th>
+                <th style="width: 60px; white-space: nowrap;">
+                    <label>3prox-test.bat</label>
+                </th>
+                <th style="width: 50px; white-space: nowrap;">
+                    <label>7zip.bat</label>
+                </th>
+                <th style="width: 50px; white-space: nowrap;">
+                    <label>7zip-test.bat</label>
+                </th>
+                <th style="width: 50px; white-space: nowrap;">
+                    <label>7zipmsi-test.bat</label>
+                </th>
+                <th style="width: 60px; white-space: nowrap;">
+                    <label>Cobian-Backup-test.bat</label>
+                </th>
+                <th style="width: 40px; white-space: nowrap;">
+                    <label>folder.bat</label>
+                </th>
+                <th style="width: 40px; white-space: nowrap;">
+                    <label>FTP.bat</label>
+                </th>
+                <th style="width: 40px; white-space: nowrap;">
+                    <label>Open_Port-80.bat</label>
+                </th>
+                <th style="width: 40px; white-space: nowrap;">
+                    <label>Open_Port-445.bat</label>
+                </th>
+                <th style="width: 40px; white-space: nowrap;">
+                    <label>Open_Port-3389.bat</label>
+                </th>
+                <th style="width: 40px; white-space: nowrap;">
+                    <label>Open_Ports-80-443-8080.bat</label>
+                </th>
+                <th style="width: 40px; white-space: nowrap;">
+                    <label>Open_Ports-3389-445.bat</label>
+                </th>
+                <th style="width: 40px; white-space: nowrap;">
+                    <label>Open_Ports-3389-445-443.bat</label>
+                </th>
+                <th style="width: 40px; white-space: nowrap;">
+                    <label>pass.bat</label>
+                </th>
+                <th style="width: 70px; white-space: nowrap;">
+                    <label>PostgreSQL.bat</label>
+                </th>
+                <th style="width: 80px; white-space: nowrap;">
+                    <label>Powershell.bat</label>
+                </th>
+                <th style="width: 60px; white-space: nowrap;">
+                    <label>veean-agent.bat</label>
+                </th>
+                <th style="width: 60px; white-space: nowrap;">
+                    <label>hotfix7-KB3102810.bat</label>
+                </th>
+                <th style="width: 60px; white-space: nowrap;">
+                    <label>hotfix812-KB2842230.bat</label>
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Configuration)
+            {
+                <tr>
+                    <td>
+                        <button id="download-button-@item.Id">Скачать</button>
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.AutounattendPath)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.VmTitle)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.AdminUsername)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.AdminPassword)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.CoresNumber)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.RamNumber)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.DiskSizeNumber)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.IsoFilename)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.OS)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.prox)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.zip)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.ziptest)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.zipmsi)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.cobian)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.folder)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.ftp)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.port80)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.port445)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.port3389)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.ports804438080)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.ports3389445)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.ports3389445443)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.pass)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.postgresql)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.powershell)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.veeam)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.hotfix7)
+                    </td>
+                    <td style="white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.hotfix812)
+                    </td>
+                    <td>
+                    <script src="~/lib/jszip/jszip.min.js"></script>
+                    <script>
+                        async function downloadConfiguration(id) {
+                            try {
+                                // fetch configuration data for a single item
+                                const response = await fetch(`/Configuration/Details?handler=Json&id=${id}`);
+                                const data = await response.json();
+
+                                if (!['l24', 'l26', 'solaris', 'other'].includes(data.os)) {
+                                    // Для WINDOWS
+
+                                    const cookies = document.cookie.split(';');
+                                    let proxmoxUrlValue = null;
+
+                                    for (let i = 0; i < cookies.length; i++) {
+                                        const cookie = cookies[i].trim();
+                                        if (cookie.startsWith('proxmox_url=')) {
+                                            proxmoxUrlValue = cookie.substring('proxmox_url='.length, cookie.length);
+                                            break;
+                                        }
+                                    }
+
+                                    const config = JSON.parse(JSON.stringify({
+                                        variables: {
+                                            autounattend: data.autounattendPath,
+                                            vmname: data.vmTitle,
+                                            "vm-cpu-num": `${data.coresNumber}`,
+                                            "vm-mem-size": `${data.ramNumber}`,
+                                            users: `${data.adminUsername}`,
+                                            pass: data.adminPassword,
+                                            "vm-disk-size": `${data.diskSizeNumber}G`,
+                                            i_file: `local:iso/${data.isoFilename}`,
+                                            i_file2: "local:iso/virtio-win-0.1.229.iso"
+                                        },
+                                        builders: [
+                                            {
+                                                type: "proxmox",
+                                                proxmox_url: proxmoxUrlValue,
+                                                insecure_skip_tls_verify: true,
+                                                username: "{{user `users`}}",
+                                                password: "{{user `pass`}}",
+                                                vm_name: "{{user `vmname`}}",
+                                                boot_wait: "2m",
+                                                boot_command: [
+                                                    "<tab><tab><tab><wait><enter><wait10s><enter><wait10s><down><wait><tab><enter><wait10s><spacebar><wait><tab><wait><enter><wait5s><tab><wait><enter><wait><tab><wait><tab><wait><enter><wait><down><down><down><down><down><down><down><down><right><down><down><down><down><down><down><down><right><down><enter><wait20s><tab><enter>"
+                                                ],
+                                                communicator: "none",
+                                                node: "pve",
+                                                network_adapters: [
+                                                    {
+                                                        model: "e1000",
+                                                        bridge: "vmbr0"
+                                                    }
+                                                ],
+                                                disks: [
+                                                    {
+                                                        type: "virtio",
+                                                        disk_size: "{{user `vm-disk-size`}}",
+                                                        storage_pool: "local-lvm",
+                                                        storage_pool_type: "lvm-thin",
+                                                        format: "raw"
+                                                    }
+                                                ],
+                                                iso_file: "{{user `i_file`}}",
+                                                additional_iso_files: [
+                                                    {
+                                                        device: "ide0",
+                                                        iso_file: "{{user `i_file2`}}",
+                                                        unmount: false
+                                                    }
+                                                ],
+                                                os: data.os,
+                                                cores: "{{user `vm-cpu-num`}}",
+                                                memory: "{{user `vm-mem-size`}}",
+                                                cpu_type: "kvm64",
+                                                disable_kvm: "false",
+                                                pool: "",
+                                                scsi_controller: "virtio-scsi-pci",
+                                                unmount_iso: "true"
+                                            }
+                                        ],
+                                        provisioners: [
+                                            {
+                                                type: "powershell",
+                                                inline: [
+                                                    `New-NetIPAddress -InterfaceAlias Ethernet -IPAddress 192.168.1.${data.id + 1} -PrefixLength 24 -DefaultGateway 192.168.1.1 | Out-Null`,
+                                                    "Set-DnsClientServerAddress -InterfaceAlias Ethernet -ServerAddresses ('8.8.8.8', '8.8.4.4') | Out-Null"
+                                                ]
+                                            }
+                                        ]
+                                    }));
+
+                                    const scripts = {
+                                        prox: "3prox-test.bat",
+                                        zip: "7zip.bat",
+                                        ziptest: "7zip-test.bat",
+                                        zipmsi: "7zipmsi-test.bat",
+                                        cobian: "Cobian-Backup-test.bat",
+                                        folder: "folder.bat",
+                                        ftp: "FTP.bat",
+                                        port80: "Open_Port-80.bat",
+                                        port445: "Open_Port-445.bat",
+                                        port3389: "Open_Port-3389.bat",
+                                        ports804438080: "Open_Ports-80-443-8080.bat",
+                                        ports3389445: "Open_Ports-3389-445.bat",
+                                        ports3389445443: "Open_Ports-3389-445-443.bat",
+                                        pass: "pass.bat",
+                                        postgresql: "PostgreSQL.bat",
+                                        powershell: "Powershell.bat",
+                                        veeam: "veean-agent.bat",
+                                        hotfix7: "hotfix7-KB3102810.bat",
+                                        hotfix812: "hotfix812-KB2842230.bat"
+                                    };
+
+                                    for (const key in scripts) {
+                                        if (data[key]) {
+                                            const command = `Copy-Item D:\\scripts\\${scripts[key]} C:\\temp\\${scripts[key]}; Start-Process C:\\temp\\${scripts[key]}`;
+                                            config.provisioners[0].inline.push(command);
+                                        }
+                                    }
+
+                                    const zip = new JSZip();
+
+                                    const vmname = config.variables.vmname;
+                                    const jsonStr = JSON.stringify(config, null, 2);
+
+                                    // save json file with vmname as filename
+                                    zip.file(`${vmname}.json`, jsonStr);
+
+                                    // generate bat file for all json files
+                                    const batContent = `for %%f in (*.json) do (packer.exe build "%%f")`;
+                                    zip.file(`run_packer.bat`, batContent);
+
+                                    // generate zip folder containing all files
+                                    const content = await zip.generateAsync({ type: "blob" });
+
+                                    // create a link to download the zip folder
+                                    const link = document.createElement('a');
+                                    link.href = URL.createObjectURL(content);
+                                    link.download = `configuration_${vmname}.zip`;
+
+                                    // trigger click event on link to initiate download
+                                    link.click();
+                                } else {
+                                    // Для LINUX, SOLARIS, OTHER
+
+                                    const cookies = document.cookie.split(';');
+                                    let proxmoxUrlValue = null;
+
+                                    for (let i = 0; i < cookies.length; i++) {
+                                        const cookie = cookies[i].trim();
+                                        if (cookie.startsWith('proxmox_url=')) {
+                                            proxmoxUrlValue = cookie.substring('proxmox_url='.length, cookie.length);
+                                            break;
+                                        }
+                                    }
+
+                                    const config = JSON.parse(JSON.stringify({
+                                        variables: {
+                                            autounattend: data.autounattendPath,
+                                            vmname: data.vmTitle,
+                                            "vm-cpu-num": `${data.coresNumber}`,
+                                            "vm-mem-size": `${data.ramNumber}`,
+                                            users: `${data.adminUsername}`,
+                                            pass: data.adminPassword,
+                                            "vm-disk-size": `${data.diskSizeNumber}G`,
+                                            i_file: `local:iso/${data.isoFilename}`,
+                                            i_file2: "local:iso/virtio-win-0.1.229.iso"
+                                        },
+                                        builders: [
+                                            {
+                                                type: "proxmox",
+                                                proxmox_url: proxmoxUrlValue,
+                                                insecure_skip_tls_verify: true,
+                                                username: "{{user `users`}}",
+                                                password: "{{user `pass`}}",
+                                                vm_name: "{{user `vmname`}}",
+                                                http_directory: data.autounattendPath,
+                                                boot_wait: "2m",
+                                                boot_command: [
+                                                    "<tab> <tab> <tab> <wait>",
+                                                    "wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/Autounattend-10.xml <enter><wait>",
+                                                    "<wait30m>"
+                                                ],
+                                                communicator: "none",
+                                                node: "pve",
+                                                network_adapters: [
+                                                    {
+                                                        model: "e1000",
+                                                        bridge: "vmbr0"
+                                                    }
+                                                ],
+                                                disks: [
+                                                    {
+                                                        type: "virtio",
+                                                        disk_size: "{{user `vm-disk-size`}}",
+                                                        storage_pool: "local-lvm",
+                                                        storage_pool_type: "lvm-thin",
+                                                        format: "raw"
+                                                    }
+                                                ],
+                                                iso_file: "{{user `i_file`}}",
+                                                additional_iso_files: [
+                                                    {
+                                                        device: "ide0",
+                                                        iso_file: "{{user `i_file2`}}",
+                                                        unmount: false
+                                                    }
+                                                ],
+                                                os: data.os,
+                                                cores: "{{user `vm-cpu-num`}}",
+                                                memory: "{{user `vm-mem-size`}}",
+                                                cpu_type: "kvm64",
+                                                disable_kvm: "false",
+                                                pool: "",
+                                                scsi_controller: "virtio-scsi-pci",
+                                                unmount_iso: "true"
+                                            }
+                                        ],
+                                        provisioners: [
+                                            {
+                                                type: "powershell",
+                                                inline: [
+                                                    `New-NetIPAddress -InterfaceAlias Ethernet -IPAddress 192.168.1.${data.id + 1} -PrefixLength 24 -DefaultGateway 192.168.1.1 | Out-Null`,
+                                                    "Set-DnsClientServerAddress -InterfaceAlias Ethernet -ServerAddresses ('8.8.8.8', '8.8.4.4') | Out-Null"
+                                                ]
+                                            }
+                                        ]
+                                    }));
+
+                                    const scripts = {
+                                        prox: "3prox-test.bat",
+                                        zip: "7zip.bat",
+                                        ziptest: "7zip-test.bat",
+                                        zipmsi: "7zipmsi-test.bat",
+                                        cobian: "Cobian-Backup-test.bat",
+                                        folder: "folder.bat",
+                                        ftp: "FTP.bat",
+                                        port80: "Open_Port-80.bat",
+                                        port445: "Open_Port-445.bat",
+                                        port3389: "Open_Port-3389.bat",
+                                        ports804438080: "Open_Ports-80-443-8080.bat",
+                                        ports3389445: "Open_Ports-3389-445.bat",
+                                        ports3389445443: "Open_Ports-3389-445-443.bat",
+                                        pass: "pass.bat",
+                                        postgresql: "PostgreSQL.bat",
+                                        powershell: "Powershell.bat",
+                                        veeam: "veean-agent.bat",
+                                        hotfix7: "hotfix7-KB3102810.bat",
+                                        hotfix812: "hotfix812-KB2842230.bat"
+                                    };
+
+                                    for (const key in scripts) {
+                                        if (data[key]) {
+                                            const command = `Copy-Item D:\\scripts\\${scripts[key]} C:\\temp\\${scripts[key]}; Start-Process C:\\temp\\${scripts[key]}`;
+                                            config.provisioners[0].inline.push(command);
+                                        }
+                                    }
+
+                                    const zip = new JSZip();
+
+                                    const vmname = config.variables.vmname;
+                                    const jsonStr = JSON.stringify(config, null, 2);
+
+                                    // save json file with vmname as filename
+                                    zip.file(`${vmname}.json`, jsonStr);
+
+                                    // generate bat file for all json files
+                                    const batContent = `for %%f in (*.json) do (packer.exe build "%%f")`;
+                                    zip.file(`run_packer.bat`, batContent);
+
+                                    // generate zip folder containing all files
+                                    const content = await zip.generateAsync({ type: "blob" });
+
+                                    // create a link to download the zip folder
+                                    const link = document.createElement('a');
+                                    link.href = URL.createObjectURL(content);
+                                    link.download = `configuration_${vmname}.zip`;
+
+                                    // trigger click event on link to initiate download
+                                    link.click();
+                                }
+                            } catch (error) {
+                                console.error(error);
+                            }
+                        }
+
+                        var downloadButton = document.getElementById('download-button-@item.Id');
+                        downloadButton.addEventListener('click', () => {
+                            downloadConfiguration(@item.Id);
+                        });
+                    </script>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Редактировать</a>
+                <a asp-page="./Details" asp-route-id="@item.Id">Просмотреть</a>
+                <a asp-page="./Delete" asp-route-id="@item.Id">Удалить</a> 
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+</div>

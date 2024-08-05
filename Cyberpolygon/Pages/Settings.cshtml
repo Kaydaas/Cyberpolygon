@@ -1,0 +1,83 @@
+﻿@page
+@model SettingsModel
+@{
+    ViewData["Title"] = "Параметры";
+}
+<h1>@ViewData["Title"]</h1>
+
+<div class="cfg">
+    <form method="post">
+        <label for="connectionstring" class="label">Строка подключения к базе данных</label>
+        <br>
+        <input type="text" id="connectionstringInput" name="connectionstring">
+        <br>
+        <p>SQL Server: Server=(localdb)\mssqllocaldb;Database=Configuration;Trusted_Connection=True;MultipleActiveResultSets=true</p>
+        <p>SQL Express: Server=.\sqlexpress;Database=Configuration;Trusted_Connection=True;MultipleActiveResultSets=true</p>
+        <input type="submit" value="Сохранить строку подключения" id="saveConfigBtn">
+
+        <label for="proxmoxurl" class="label">Адрес Proxmox</label>
+        <br>
+        <input type="text" id="proxmoxurlInput" name="packerpath">
+        <br>
+        <p>https://192.168.95.134:8006/api2/json</p>
+        <input type="submit" value="Сохранить адрес Proxmox" id="saveProxmoxURLbtn">
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var saveButton = document.getElementById("saveConfigBtn");
+                saveButton.addEventListener("click", function (event) {
+                    event.preventDefault(); // Отменяем отправку формы
+
+                    var connectionstringInput = document.getElementById("connectionstringInput");
+                    var connectionstringValue = connectionstringInput.value;
+
+                    updateConfigurationContext(connectionstringValue);
+                });
+
+                var saveProxmoxURLbtn = document.getElementById("saveProxmoxURLbtn");
+                saveProxmoxURLbtn.addEventListener("click", function (event) {
+                    event.preventDefault(); // Отменяем отправку формы
+
+                    var proxmoxurlInput = document.getElementById("proxmoxurlInput");
+                    var proxmoxurlValue = proxmoxurlInput.value;
+
+                    document.cookie = 'proxmox_url=' + proxmoxurlValue;
+                });
+
+                // Загрузка значения из куки для поля "Адрес Proxmox"
+                var proxmoxurlInput = document.getElementById("proxmoxurlInput");
+                var proxmoxurlValue = getCookieValue('proxmox_url');
+                if (proxmoxurlValue) {
+                    proxmoxurlInput.placeholder = proxmoxurlValue;
+                }
+            });
+
+            function getCookieValue(name) {
+                var regexp = new RegExp("(?:^|; )" + name + "=([^;]*)");
+                var match = document.cookie.match(regexp);
+                return match ? match[1] : null;
+            }
+
+            function updateConfigurationContext(connectionstringValue) {
+                fetch("/Settings?handler=ConfigurationContext", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "RequestVerificationToken": document.getElementsByName("__RequestVerificationToken")[0].value
+                    },
+                    body: JSON.stringify({
+                        ConfigurationContext: connectionstringValue
+                    })
+                }).then(function (response) {
+                    if (response.ok) {
+                        console.log("Значение ConfigurationContext успешно сохранено.");
+                    } else {
+                        console.error("Произошла ошибка при сохранении значения ConfigurationContext.");
+                    }
+                }).catch(function (error) {
+                    console.error("Произошла ошибка при сохранении значения ConfigurationContext.", error);
+                });
+            }
+        </script>
+    </form>
+</div>

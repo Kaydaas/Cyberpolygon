@@ -1,0 +1,168 @@
+﻿@page
+@model Cyberpolygon.Pages.Configuration.EditModel
+
+@{
+    ViewData["Title"] = "Редактировать конфигурацию";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Configuration.Id" />
+            <div class="form-group">
+                <label>Путь к файлу autounattend.xml</label>
+                <input asp-for="Configuration.AutounattendPath" class="form-control" />
+                <span asp-validation-for="Configuration.AutounattendPath" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Название виртуальной машины</label>
+                <input asp-for="Configuration.VmTitle" class="form-control" />
+                <span asp-validation-for="Configuration.VmTitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Имя пользователя</label>
+                <input asp-for="Configuration.AdminUsername" class="form-control" />
+                <span asp-validation-for="Configuration.AdminUsername" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input asp-for="Configuration.AdminPassword" class="form-control" />
+                <span asp-validation-for="Configuration.AdminPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Количество ядер</label>
+                <input asp-for="Configuration.CoresNumber" class="form-control" />
+                <span asp-validation-for="Configuration.CoresNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>ОЗУ (МБ)</label>
+                <input asp-for="Configuration.RamNumber" class="form-control" />
+                <span asp-validation-for="Configuration.RamNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Размер жеского диска (ГБ)</label>
+                <input asp-for="Configuration.DiskSizeNumber" class="form-control" />
+                <span asp-validation-for="Configuration.DiskSizeNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Название ISO файла</label>
+                <input asp-for="Configuration.IsoFilename" class="form-control" />
+                <span asp-validation-for="Configuration.IsoFilename" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Операционная система</label>
+                <input asp-for="Configuration.OS" class="form-control" />
+                <span asp-validation-for="Configuration.OS" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>3prox-test.bat</label>
+                <input asp-for="Configuration.prox" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.prox" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>7zip.bat</label>
+                <input asp-for="Configuration.zip" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.zip" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>7zip-test.bat</label>
+                <input asp-for="Configuration.ziptest" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.ziptest" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>7zipmsi-test.bat</label>
+                <input asp-for="Configuration.zipmsi" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.zipmsi" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Cobian-Backup-test.bat</label>
+                <input asp-for="Configuration.cobian" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.cobian" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>folder.bat</label>
+                <input asp-for="Configuration.folder" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.folder" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>FTP.bat</label>
+                <input asp-for="Configuration.ftp" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.ftp" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Open_Port-80.bat</label>
+                <input asp-for="Configuration.port80" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.port80" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Open_Port-445.bat</label>
+                <input asp-for="Configuration.port445" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.port445" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Open_Port-3389.bat</label>
+                <input asp-for="Configuration.port3389" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.port3389" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Open_Ports-80-443-8080.bat</label>
+                <input asp-for="Configuration.ports804438080" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.ports804438080" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Open_Ports-3389-445.bat</label>
+                <input asp-for="Configuration.ports3389445" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.ports3389445" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Open_Ports-3389-445-443.bat</label>
+                <input asp-for="Configuration.ports3389445443" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.ports3389445443" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>pass.bat</label>
+                <input asp-for="Configuration.pass" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.pass" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>PostgreSQL.bat</label>
+                <input asp-for="Configuration.postgresql" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.postgresql" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Powershell.bat</label>
+                <input asp-for="Configuration.powershell" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.powershell" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>veean-agent.bat</label>
+                <input asp-for="Configuration.veeam" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.veeam" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>hotfix7-KB3102810.bat</label>
+                <input asp-for="Configuration.hotfix7" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.hotfix7" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>hotfix812-KB2842230.bat</label>
+                <input asp-for="Configuration.hotfix812" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Configuration.hotfix812" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Назад</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
